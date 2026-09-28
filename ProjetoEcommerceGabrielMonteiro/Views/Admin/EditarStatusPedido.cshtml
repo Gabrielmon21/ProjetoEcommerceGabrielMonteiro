@@ -1,0 +1,163 @@
+﻿@model ProjetoEcommerceGabrielMonteiro.Models.Pedido
+@{
+    ViewBag.Title = "Editar Status do Pedido";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h2 class="text-center mb-0">✏️ Editar Status do Pedido</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Informações do Pedido -->
+                    <div class="alert alert-info">
+                        <h5>📦 Pedido #@Model.Id</h5>
+                        <p class="mb-1"><strong>Cliente ID:</strong> @Model.ClienteId</p>
+                        <p class="mb-1"><strong>Data:</strong> @Model.DataPedido.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p class="mb-1"><strong>Total:</strong> R$ @Model.Total.ToString("N2")</p>
+                        <p class="mb-0">
+                            <strong>Status Atual:</strong>
+                            @if (Model.Status == "Confirmado")
+                            {
+                                <span class="badge badge-success">✅ @Model.Status</span>
+                            }
+                            else if (Model.Status == "Pendente")
+                            {
+                                <span class="badge badge-warning">⏳ @Model.Status</span>
+                            }
+                            else if (Model.Status == "Cancelado")
+                            {
+                                <span class="badge badge-danger">❌ @Model.Status</span>
+                            }
+                            else if (Model.Status == "Entregue")
+                            {
+                                <span class="badge badge-info">📦 @Model.Status</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-secondary">@Model.Status</span>
+                            }
+                        </p>
+                    </div>
+
+                    <!-- Formulário de Edição -->
+                    @using (Html.BeginForm("EditarStatusPedido", "Admin", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.Hidden("id", Model.Id)
+
+                        <div class="form-group">
+                            <label for="status"><strong>🔄 Novo Status:</strong></label>
+                            <select name="status" class="form-control" required>
+                                <option value="">Selecione o novo status...</option>
+                                <option value="Pendente" @(Model.Status == "Pendente" ? "selected" : "")>⏳ Pendente - Aguardando confirmação</option>
+                                <option value="Confirmado" @(Model.Status == "Confirmado" ? "selected" : "")>✅ Confirmado - Pedido em processamento</option>
+                                <option value="Entregue" @(Model.Status == "Entregue" ? "selected" : "")>📦 Entregue - Pedido finalizado</option>
+                                <option value="Cancelado" @(Model.Status == "Cancelado" ? "selected" : "")>❌ Cancelado - Pedido cancelado</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Selecione o novo status para este pedido.
+                            </small>
+                        </div>
+
+                        <!-- Descrição dos Status -->
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6>📋 Descrição dos Status:</h6>
+                                <ul class="list-unstyled small">
+                                    <li><span class="badge badge-warning">⏳ Pendente</span> - Pedido recebido, aguardando confirmação</li>
+                                    <li><span class="badge badge-success">✅ Confirmado</span> - Pedido confirmado e em preparação</li>
+                                    <li><span class="badge badge-info">📦 Entregue</span> - Pedido entregue ao cliente</li>
+                                    <li><span class="badge badge-danger">❌ Cancelado</span> - Pedido cancelado por solicitação</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="observacao"><strong>📝 Observação (Opcional):</strong></label>
+                            <textarea name="observacao" class="form-control" rows="3"
+                                      placeholder="Adicione uma observação sobre a alteração de status..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-warning btn-lg btn-block">
+                                💾 Atualizar Status
+                            </button>
+
+                            @Html.ActionLink("↩️ Cancelar", "DetalhesPedido", "Admin",
+                                new { id = Model.Id },
+                                new { @class = "btn btn-secondary btn-block mt-2" })
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">ℹ️ Informações Importantes</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small">
+                        <li>✅ <strong>Status Confirmado:</strong> O pedido está sendo preparado para envio</li>
+                        <li>📦 <strong>Status Entregue:</strong> Marque quando o pedido for entregue ao cliente</li>
+                        <li>❌ <strong>Status Cancelado:</strong> Use apenas quando solicitado pelo cliente</li>
+                        <li>⏳ <strong>Status Pendente:</strong> Pedido aguardando processamento inicial</li>
+                    </ul>
+                    <div class="alert alert-warning small">
+                        <strong>⚠️ Atenção:</strong> Alterações no status do pedido são registradas no sistema.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-focus no select
+            $('select[name="status"]').focus();
+
+            // Validação antes do envio
+            $('form').submit(function() {
+                var novoStatus = $('select[name="status"]').val();
+                var statusAtual = '@Model.Status';
+
+                if (novoStatus === statusAtual) {
+                    alert('O status selecionado é o mesmo que o atual. Nenhuma alteração será feita.');
+                    return false;
+                }
+
+                if (novoStatus === 'Cancelado') {
+                    return confirm('⚠️ ATENÇÃO: Você está prestes a CANCELAR este pedido. Esta ação não pode ser desfeita. Tem certeza?');
+                }
+
+                return confirm('Confirma a alteração do status para: ' + $('select[name="status"] option:selected').text() + '?');
+            });
+
+            // Efeito visual ao mudar o status
+            $('select[name="status"]').change(function() {
+                var selected = $(this).val();
+                var button = $('button[type="submit"]');
+
+                button.removeClass('btn-warning btn-success btn-danger btn-info');
+
+                if (selected === 'Confirmado') {
+                    button.addClass('btn-success');
+                } else if (selected === 'Cancelado') {
+                    button.addClass('btn-danger');
+                } else if (selected === 'Entregue') {
+                    button.addClass('btn-info');
+                } else {
+                    button.addClass('btn-warning');
+                }
+            });
+
+            // Trigger inicial para definir a cor do botão
+            $('select[name="status"]').trigger('change');
+        });
+    </script>
+}

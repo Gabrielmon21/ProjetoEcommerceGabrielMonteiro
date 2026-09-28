@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Finalizar Pedido";
+    decimal total = ViewBag.Total;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">✅ Finalizar Pedido</h2>
+                </div>
+                <div class="card-body">
+                    <h4>📋 Resumo do Pedido</h4>
+                    <p class="lead">Total: <strong class="text-success">R$ @total.ToString("N2")</strong></p>
+
+                    @using (Html.BeginForm("FinalizarPedido", "Carrinho", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            <label for="enderecoEntrega">📦 Endereço de Entrega:</label>
+                            <textarea name="enderecoEntrega" class="form-control" rows="3"
+                                      placeholder="Digite seu endereço completo para entrega" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="metodoPagamento">💳 Método de Pagamento:</label>
+                            <select name="metodoPagamento" class="form-control" required>
+                                <option value="">Selecione o método de pagamento</option>
+                                <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                                <option value="Cartão de Débito">💳 Cartão de Débito</option>
+                                <option value="Boleto Bancário">📄 Boleto Bancário</option>
+                                <option value="PIX">📱 PIX</option>
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h5>ℹ️ Informações Importantes</h5>
+                            <ul>
+                                <li>O prazo de entrega é de 5 a 7 dias úteis</li>
+                                <li>Você receberá um e-mail de confirmação</li>
+                                <li>Pagamento simulado para fins de demonstração</li>
+                            </ul>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-lg btn-block">
+                                🎉 Confirmar Pedido
+                            </button>
+                            @Html.ActionLink("↩️ Voltar ao Carrinho", "Index", "Carrinho", null,
+                                new { @class = "btn btn-secondary btn-block mt-2" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

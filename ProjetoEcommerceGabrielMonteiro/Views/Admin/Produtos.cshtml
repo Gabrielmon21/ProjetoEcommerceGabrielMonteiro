@@ -1,0 +1,792 @@
+﻿@model List<ProjetoEcommerceGabrielMonteiro.Models.Produto>
+@{
+    ViewBag.Title = "Gerenciar Produtos";
+
+    const int estoqueBaixo = 5; // até essa quantidade o estoque é sinalizado como baixo
+
+    int total = Model != null ? Model.Count : 0;
+    int nAtivos = total > 0 ? Model.Count(p => p.Ativo) : 0;
+    int nInativos = total - nAtivos;
+    int nSemEstoque = total > 0 ? Model.Count(p => p.QuantidadeEstoque <= 0) : 0;
+    decimal valorEstoque = total > 0 ? Model.Sum(p => p.Preco * p.QuantidadeEstoque) : 0m;
+    int maxEstoque = total > 0 ? Math.Max(1, (int)Model.Max(p => p.QuantidadeEstoque)) : 1;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+    .cx {
+        --cx-base: #070b14;
+        --cx-surface: #0e1626;
+        --cx-surface-2: #131e33;
+        --cx-line: #1d2a44;
+        --cx-text: #e6edf7;
+        --cx-muted: #8a9bb8;
+        --cx-cyan: #22d3ee;
+        --cx-violet: #8b5cf6;
+        --cx-danger: #f43f5e;
+        --cx-warn: #f59e0b;
+        --cx-ok: #34d399;
+        position: relative;
+        margin: 1.5rem 0;
+        padding: 2rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 18px;
+        color: var(--cx-text);
+        font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        background: radial-gradient(900px 380px at 88% -10%, rgba(139, 92, 246, .18), transparent 60%), radial-gradient(700px 320px at -5% 0%, rgba(34, 211, 238, .14), transparent 60%), linear-gradient(rgba(34, 211, 238, .035) 1px, transparent 1px) 0 0 / 34px 34px, linear-gradient(90deg, rgba(34, 211, 238, .035) 1px, transparent 1px) 0 0 / 34px 34px, var(--cx-base);
+        overflow: hidden;
+    }
+
+        .cx *, .cx *::before, .cx *::after {
+            box-sizing: border-box;
+        }
+
+    /* Cabeçalho */
+    .cx-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .cx-title {
+        margin: 0;
+        font-family: 'Space Grotesk', 'Manrope', sans-serif;
+        font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+        line-height: 1.05;
+        background: linear-gradient(100deg, #fff 30%, var(--cx-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .cx-sub {
+        margin: .45rem 0 0;
+        color: var(--cx-muted);
+        font-size: .95rem;
+    }
+
+    .cx-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+        align-items: center;
+    }
+
+    .cx-search {
+        position: relative;
+    }
+
+        .cx-search svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--cx-muted);
+            pointer-events: none;
+        }
+
+        .cx-search input {
+            width: 260px;
+            max-width: 100%;
+            padding: .6rem .9rem .6rem 2.2rem;
+            border-radius: 10px;
+            border: 1px solid var(--cx-line);
+            background: var(--cx-surface);
+            color: var(--cx-text);
+            font: inherit;
+            font-size: .92rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .cx-search input::placeholder {
+                color: var(--cx-muted);
+            }
+
+            .cx-search input:focus {
+                outline: none;
+                border-color: var(--cx-cyan);
+                box-shadow: 0 0 0 3px rgba(34, 211, 238, .18);
+            }
+
+    .cx-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .6rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-text);
+        font: inherit;
+        font-size: .92rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+
+        .cx-btn:hover {
+            border-color: var(--cx-cyan);
+            background: #16233c;
+            color: var(--cx-text);
+            text-decoration: none;
+        }
+
+        .cx-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    .cx-btn--primary {
+        border-color: transparent;
+        color: #041018;
+        background: linear-gradient(120deg, var(--cx-cyan), var(--cx-violet));
+        box-shadow: 0 6px 22px -8px rgba(34, 211, 238, .7);
+    }
+
+        .cx-btn--primary:hover {
+            color: #041018;
+            background: linear-gradient(120deg, #5ce3f5, #a184fa);
+            border-color: transparent;
+        }
+
+    .cx a:focus-visible, .cx button:focus-visible, .cx input:focus-visible {
+        outline: 2px solid var(--cx-cyan);
+        outline-offset: 2px;
+    }
+
+    /* Alertas */
+    .cx-alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: .85rem 1.1rem;
+        border-radius: 12px;
+        border: 1px solid;
+        font-size: .93rem;
+    }
+
+    .cx-alert--ok {
+        color: var(--cx-ok);
+        background: rgba(52, 211, 153, .08);
+        border-color: rgba(52, 211, 153, .35);
+    }
+
+    .cx-alert--erro {
+        color: #fb7185;
+        background: rgba(244, 63, 94, .08);
+        border-color: rgba(244, 63, 94, .35);
+    }
+
+    .cx-alert button {
+        background: none;
+        border: 0;
+        color: inherit;
+        font-size: 1.3rem;
+        line-height: 1;
+        cursor: pointer;
+        opacity: .75;
+    }
+
+        .cx-alert button:hover {
+            opacity: 1;
+        }
+
+    /* Indicadores */
+    .cx-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .cx-stat {
+        padding: 1.15rem 1.3rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(19, 30, 51, .9), rgba(14, 22, 38, .9));
+        min-width: 0;
+    }
+
+    .cx-stat--main {
+        border-color: rgba(34, 211, 238, .4);
+        box-shadow: 0 0 32px -12px rgba(34, 211, 238, .5);
+    }
+
+    .cx-stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -.02em;
+        overflow-wrap: anywhere;
+    }
+
+    .cx-stat-label {
+        margin-top: .4rem;
+        color: var(--cx-muted);
+        font-size: .88rem;
+    }
+
+    .s-ativo {
+        --c: var(--cx-ok);
+    }
+
+    .s-inativo {
+        --c: var(--cx-danger);
+    }
+
+    .s-semestoque {
+        --c: var(--cx-warn);
+    }
+
+    /* Filtros */
+    .cx-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        padding: 1rem 1.3rem;
+        border-bottom: 1px solid var(--cx-line);
+    }
+
+    .cx-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .4rem .85rem;
+        border-radius: 99px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-muted);
+        font: inherit;
+        font-size: .85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color .15s, border-color .15s, background .15s;
+    }
+
+        .cx-chip i {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--c, var(--cx-text));
+            box-shadow: 0 0 8px var(--c, transparent);
+        }
+
+        .cx-chip b {
+            color: var(--cx-text);
+            font-weight: 700;
+        }
+
+        .cx-chip:hover {
+            color: var(--cx-text);
+            border-color: var(--c, var(--cx-cyan));
+        }
+
+        .cx-chip[aria-pressed="true"] {
+            color: var(--cx-text);
+            border-color: var(--c, var(--cx-cyan));
+            background: rgba(34, 211, 238, .08);
+        }
+
+    /* Tabela */
+    .cx-panel {
+        border: 1px solid var(--cx-line);
+        border-radius: 14px;
+        background: rgba(14, 22, 38, .92);
+        overflow: hidden;
+    }
+
+    .cx-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.3rem;
+        border-bottom: 1px solid var(--cx-line);
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+
+    .cx-count {
+        color: var(--cx-muted);
+        font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        font-size: .88rem;
+    }
+
+    .cx-scroll {
+        overflow-x: auto;
+    }
+
+    .cx-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .cx-table th {
+            padding: .8rem 1.3rem;
+            text-align: left;
+            color: var(--cx-muted);
+            font-size: .82rem;
+            font-weight: 600;
+            background: rgba(7, 11, 20, .55);
+            white-space: nowrap;
+        }
+
+        .cx-table td {
+            padding: .85rem 1.3rem;
+            border-top: 1px solid var(--cx-line);
+            font-size: .93rem;
+            vertical-align: middle;
+        }
+
+        .cx-table tbody tr {
+            transition: background .15s;
+        }
+
+            .cx-table tbody tr:hover {
+                background: rgba(34, 211, 238, .05);
+            }
+
+    .cx-id {
+        color: var(--cx-muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cx-name {
+        font-weight: 700;
+    }
+
+    .cx-muted {
+        color: var(--cx-muted);
+    }
+
+    .cx-preco {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        color: var(--cx-ok);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cx-stock {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        min-width: 140px;
+    }
+
+    .cx-stock-num {
+        min-width: 2.2ch;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cx-stock-bar {
+        flex: 1;
+        height: 5px;
+        border-radius: 99px;
+        background: var(--cx-line);
+        overflow: hidden;
+    }
+
+        .cx-stock-bar span {
+            display: block;
+            height: 100%;
+            width: var(--w);
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--cx-cyan), var(--cx-violet));
+        }
+
+    .cx-stock--baixo .cx-stock-num {
+        color: var(--cx-warn);
+    }
+
+    .cx-stock--baixo .cx-stock-bar span {
+        background: var(--cx-warn);
+    }
+
+    .cx-stock--zero .cx-stock-num {
+        color: var(--cx-danger);
+    }
+
+    .cx-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .22rem .7rem;
+        border-radius: 99px;
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+    }
+
+        .cx-status i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--c);
+            box-shadow: 0 0 8px var(--c);
+        }
+
+    .cx-actions {
+        display: flex;
+        gap: .4rem;
+        justify-content: flex-end;
+    }
+
+    .cx-icon {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-muted);
+        transition: color .15s, border-color .15s, background .15s;
+    }
+
+        .cx-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    .cx-icon--editar:hover {
+        color: var(--cx-warn);
+        border-color: var(--cx-warn);
+        background: rgba(245, 158, 11, .08);
+    }
+
+    .cx-icon--excluir:hover {
+        color: var(--cx-danger);
+        border-color: var(--cx-danger);
+        background: rgba(244, 63, 94, .08);
+    }
+
+    .cx-nores {
+        display: none;
+        padding: 2rem 1.3rem;
+        text-align: center;
+        color: var(--cx-muted);
+    }
+
+    /* Estado vazio */
+    .cx-empty {
+        padding: 3.5rem 1.5rem;
+        text-align: center;
+    }
+
+    .cx-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1.1rem;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        color: var(--cx-cyan);
+        background: rgba(34, 211, 238, .08);
+        border: 1px solid rgba(34, 211, 238, .3);
+    }
+
+        .cx-empty-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+
+    .cx-empty h4 {
+        margin: 0 0 .4rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.3rem;
+    }
+
+    .cx-empty p {
+        margin: 0 auto 1.25rem;
+        max-width: 42ch;
+        color: var(--cx-muted);
+    }
+
+    /* Responsivo */
+    @@media (max-width: 960px) {
+        .cx-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 860px) {
+        .cx {
+            padding: 1.25rem;
+        }
+
+        .cx-search input {
+            width: 100%;
+        }
+
+        .cx-search {
+            flex: 1 1 100%;
+        }
+    }
+
+    @@media (max-width: 720px) {
+        .cx-table thead {
+            display: none;
+        }
+
+        .cx-table, .cx-table tbody, .cx-table tr, .cx-table td {
+            display: block;
+            width: 100%;
+        }
+
+            .cx-table tr {
+                padding: .6rem 0;
+                border-top: 1px solid var(--cx-line);
+            }
+
+            .cx-table tbody tr:first-child {
+                border-top: 0;
+            }
+
+            .cx-table td {
+                border: 0;
+                padding: .35rem 1.1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+            }
+
+                .cx-table td[data-label]::before {
+                    content: attr(data-label);
+                    color: var(--cx-muted);
+                    font-size: .82rem;
+                }
+
+        .cx-stock {
+            min-width: 0;
+            width: 55%;
+        }
+
+        .cx-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .cx-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .cx * {
+            transition: none !important;
+        }
+    }
+</style>
+
+<div class="cx">
+
+    <div class="cx-head">
+        <div>
+            <h2 class="cx-title">Produtos</h2>
+            <p class="cx-sub">@total @(total == 1 ? "produto cadastrado" : "produtos cadastrados") no catálogo</p>
+        </div>
+
+        <div class="cx-tools">
+            @if (total > 0)
+            {
+                <label class="cx-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                    <input type="search" id="cxBusca" placeholder="Buscar por nome ou marca" aria-label="Buscar produtos" autocomplete="off" />
+                </label>
+            }
+            <a class="cx-btn cx-btn--primary" href="@Url.Action("CriarProduto", "Admin")">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                Novo produto
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="cx-alert cx-alert--ok" role="status">
+            <span>@TempData["Sucesso"]</span>
+            <button type="button" aria-label="Fechar aviso" onclick="this.parentNode.remove()">&times;</button>
+        </div>
+    }
+
+    @if (TempData["Erro"] != null)
+    {
+        <div class="cx-alert cx-alert--erro" role="alert">
+            <span>@TempData["Erro"]</span>
+            <button type="button" aria-label="Fechar aviso" onclick="this.parentNode.remove()">&times;</button>
+        </div>
+    }
+
+    @if (total > 0)
+    {
+        <div class="cx-stats">
+            <div class="cx-stat cx-stat--main">
+                <div class="cx-stat-value">@total</div>
+                <div class="cx-stat-label">Total de produtos</div>
+            </div>
+            <div class="cx-stat">
+                <div class="cx-stat-value">@nAtivos</div>
+                <div class="cx-stat-label">Ativos na loja</div>
+            </div>
+            <div class="cx-stat">
+                <div class="cx-stat-value">@nSemEstoque</div>
+                <div class="cx-stat-label">Sem estoque</div>
+            </div>
+            <div class="cx-stat">
+                <div class="cx-stat-value">R$ @valorEstoque.ToString("N2")</div>
+                <div class="cx-stat-label">Valor em estoque</div>
+            </div>
+        </div>
+
+        <div class="cx-panel">
+            <div class="cx-panel-head">
+                <span>Todos os produtos</span>
+                <span class="cx-count" id="cxContagem">@total @(total == 1 ? "registro" : "registros")</span>
+            </div>
+
+            <div class="cx-chips" id="cxChips">
+                <button type="button" class="cx-chip" data-filtro="" aria-pressed="true">Todos <b>@total</b></button>
+                <button type="button" class="cx-chip s-ativo" data-filtro="ativo" aria-pressed="false"><i></i>Ativos <b>@nAtivos</b></button>
+                <button type="button" class="cx-chip s-inativo" data-filtro="inativo" aria-pressed="false"><i></i>Inativos <b>@nInativos</b></button>
+                <button type="button" class="cx-chip s-semestoque" data-filtro="semestoque" aria-pressed="false"><i></i>Sem estoque <b>@nSemEstoque</b></button>
+            </div>
+
+            <div class="cx-scroll">
+                <table class="cx-table" id="cxTabela">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Produto</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Marca</th>
+                            <th>Status</th>
+                            <th style="text-align:right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var produto in Model)
+                        {
+                            var semEstoque = produto.QuantidadeEstoque <= 0;
+                            var baixo = !semEstoque && produto.QuantidadeEstoque <= estoqueBaixo;
+                            var pctEstoque = (int)Math.Round(Math.Max(0, (double)produto.QuantidadeEstoque) * 100.0 / maxEstoque);
+                            var classeEstoque = semEstoque ? "cx-stock--zero" : (baixo ? "cx-stock--baixo" : "");
+                            var tags = (produto.Ativo ? "ativo" : "inativo") + (semEstoque ? " semestoque" : "");
+
+                            <tr data-tags="@tags">
+                                <td class="cx-id" data-label="ID">#@produto.Id</td>
+                                <td class="cx-name" data-label="Produto">@produto.Nome</td>
+                                <td data-label="Preço"><span class="cx-preco">R$ @produto.Preco.ToString("N2")</span></td>
+                                <td data-label="Estoque">
+                                    <div class="cx-stock @classeEstoque" title="@(semEstoque ? "Sem estoque" : (baixo ? "Estoque baixo" : "Estoque ok"))">
+                                        <span class="cx-stock-num">@produto.QuantidadeEstoque</span>
+                                        <span class="cx-stock-bar" aria-hidden="true"><span style="--w:@(pctEstoque)%"></span></span>
+                                    </div>
+                                </td>
+                                <td class="cx-muted" data-label="Marca">@produto.Marca</td>
+                                <td data-label="Status">
+                                    @if (produto.Ativo)
+                                    {
+                                        <span class="cx-status s-ativo"><i></i>Ativo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="cx-status s-inativo"><i></i>Inativo</span>
+                                    }
+                                </td>
+                                <td data-label="Ações">
+                                    <div class="cx-actions">
+                                        <a class="cx-icon cx-icon--editar" href="@Url.Action("EditarProduto", "Admin", new { id = produto.Id })" title="Editar" aria-label="Editar @produto.Nome">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                                        </a>
+                                        <a class="cx-icon cx-icon--excluir" href="@Url.Action("ExcluirProduto", "Admin", new { id = produto.Id })" title="Excluir" aria-label="Excluir @produto.Nome"
+                                           onclick="return confirm('Tem certeza que deseja excluir este produto?')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cx-nores" id="cxSemResultado">Nenhum produto encontrado para esse filtro.</div>
+        </div>
+    }
+    else
+    {
+        <div class="cx-panel">
+            <div class="cx-empty">
+                <div class="cx-empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5Z" /><path d="m3 8 9 5 9-5" /><path d="M12 13v8" /></svg>
+                </div>
+                <h4>Nenhum produto cadastrado</h4>
+                <p>Cadastre o primeiro produto para ele aparecer no catálogo da loja.</p>
+                <a class="cx-btn cx-btn--primary" href="@Url.Action("CriarProduto", "Admin")">Cadastrar primeiro produto</a>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>(function () {
+            var busca = document.getElementById('cxBusca');
+            var tabela = document.getElementById('cxTabela');
+            if (!busca || !tabela) return;
+
+            var linhas = tabela.querySelectorAll('tbody tr');
+            var chips = document.querySelectorAll('#cxChips .cx-chip');
+            var contagem = document.getElementById('cxContagem');
+            var vazio = document.getElementById('cxSemResultado');
+            var filtro = '';
+
+            function aplicar() {
+                var termo = busca.value.trim().toLowerCase();
+                var visiveis = 0;
+
+                linhas.forEach(function (tr) {
+                    var tags = (tr.getAttribute('data-tags') || '').split(' ');
+                    var okFiltro = !filtro || tags.indexOf(filtro) !== -1;
+                    var okTexto = !termo || tr.textContent.toLowerCase().indexOf(termo) !== -1;
+                    var mostrar = okFiltro && okTexto;
+                    tr.style.display = mostrar ? '' : 'none';
+                    if (mostrar) visiveis++;
+                });
+
+                contagem.textContent = visiveis + (visiveis === 1 ? ' registro' : ' registros');
+                vazio.style.display = visiveis === 0 ? 'block' : 'none';
+            }
+
+            busca.addEventListener('input', aplicar);
+
+            chips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    filtro = chip.getAttribute('data-filtro');
+                    chips.forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+                    aplicar();
+                });
+            });
+        })();</script>
+}

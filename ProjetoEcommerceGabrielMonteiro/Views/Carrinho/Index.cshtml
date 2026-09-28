@@ -1,0 +1,83 @@
+﻿@model List<ProjetoEcommerceGabrielMonteiro.Models.ItemCarrinho>
+@{
+    ViewBag.Title = "Carrinho de Compras";
+    decimal total = ViewBag.Total;
+}
+
+<div class="container">
+    <h2>🛒 Carrinho de Compras</h2>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Produto</th>
+                            <th>Preço Unitário</th>
+                            <th>Quantidade</th>
+                            <th>Subtotal</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@item.Nome</strong>
+                                </td>
+                                <td>R$ @item.Preco.ToString("N2")</td>
+                                <td>
+                                    @using (Html.BeginForm("AtualizarQuantidade", "Carrinho", FormMethod.Post))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="produtoId" value="@item.ProdutoId" />
+                                        <div class="input-group input-group-sm" style="width: 120px;">
+                                            <input type="number" name="quantidade" value="@item.Quantidade"
+                                                   min="1" max="99" class="form-control" />
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-outline-primary">🔄</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                                <td>R$ @item.Subtotal.ToString("N2")</td>
+                                <td>
+                                    @Html.ActionLink("🗑️", "Remover", "Carrinho",
+                                        new { id = item.ProdutoId },
+                                        new
+                                             {
+                                            @class = "btn btn-sm btn-danger",
+                                            title = "Remover",
+                                            onclick = "return confirm('Remover este item do carrinho?')"
+                                        })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="text-right mb-3">
+                    <h4>Total: <span class="text-success">R$ @total.ToString("N2")</span></h4>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    @Html.ActionLink("← Continuar Comprando", "Index", "Loja", null, new { @class = "btn btn-secondary" })
+                    @Html.ActionLink("Finalizar Pedido →", "Finalizar", "Carrinho", null, new { @class = "btn btn-success" })
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h4>🛒 Seu carrinho está vazio</h4>
+                <p>Adicione alguns produtos incríveis ao seu carrinho!</p>
+                @Html.ActionLink("Ir às Compras →", "Index", "Loja", null, new { @class = "btn btn-primary" })
+            </div>
+        </div>
+    }
+</div>

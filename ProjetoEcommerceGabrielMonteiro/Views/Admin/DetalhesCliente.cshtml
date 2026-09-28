@@ -1,0 +1,74 @@
+﻿@model ProjetoEcommerceGabrielMonteiro.Models.Cliente
+@{
+    ViewBag.Title = "Detalhes do Cliente";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👤 Detalhes do Cliente</h2>
+        @Html.ActionLink("← Voltar para Clientes", "Clientes", "Admin", null, new { @class = "btn btn-secondary" })
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📋 Informações do Cliente</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>🆔 ID:</h6>
+                            <p><strong>#@Model.Id</strong></p>
+
+                            <h6>📛 Nome:</h6>
+                            <p>@Model.Nome</p>
+
+                            <h6>📧 Email:</h6>
+                            <p>@Model.Email</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>📞 Telefone:</h6>
+                            <p>@(string.IsNullOrEmpty(Model.NumContato) ? "Não informado" : Model.NumContato)</p>
+
+                            <!-- ✅ CORREÇÃO: Verificar se DataCadastro existe -->
+                            @if (Model.GetType().GetProperty("DataCadastro") != null)
+                            {
+                                <h6>📅 Data Cadastro:</h6>
+                                <p>@Model.DataCadastro.ToString("dd/MM/yyyy HH:mm")</p>
+                            }
+
+                            <h6>📍 Endereço:</h6>
+                            <p>@(string.IsNullOrEmpty(Model.Endereco) ? "Não informado" : Model.Endereco)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @Html.ActionLink("✏️ Editar Cliente", "EditarCliente", "Admin",
+                            new { id = Model.Id }, new { @class = "btn btn-warning btn-block" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">📊 Informações Adicionais</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <div class="text-muted display-4">📈</div>
+                        <h6>Estatísticas em Desenvolvimento</h6>
+                        <p class="text-muted">Histórico de pedidos será implementado em breve.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

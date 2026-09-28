@@ -1,0 +1,62 @@
+﻿@model ProjetoEcommerceGabrielMonteiro.Models.RegistroViewModel
+@{
+    ViewBag.Title = "Registrar";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <h2 class="text-center">📝 Criar Conta</h2>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Nome)
+                            @Html.TextBoxFor(m => m.Nome, new { @class = "form-control", placeholder = "Seu nome completo" })
+                            @Html.ValidationMessageFor(m => m.Nome, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Email)
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "seu@email.com" })
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Senha)
+                            @Html.PasswordFor(m => m.Senha, new { @class = "form-control", placeholder = "Mínimo 6 caracteres" })
+                            @Html.ValidationMessageFor(m => m.Senha, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.ConfirmarSenha)
+                            @Html.PasswordFor(m => m.ConfirmarSenha, new { @class = "form-control", placeholder = "Digite a senha novamente" })
+                            @Html.ValidationMessageFor(m => m.ConfirmarSenha, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NumContato)
+                            @Html.TextBoxFor(m => m.NumContato, new { @class = "form-control", placeholder = "(11) 99999-9999" })
+                        </div>
+
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Endereco)
+                            @Html.TextBoxFor(m => m.Endereco, new { @class = "form-control", placeholder = "Seu endereço completo" })
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-block">Registrar</button>
+
+                        <div class="text-center mt-3">
+                            <p>Já tem conta? @Html.ActionLink("Faça login aqui", "Login")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

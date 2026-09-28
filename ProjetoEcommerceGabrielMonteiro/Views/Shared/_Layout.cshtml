@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - E-commerce GabrielMonteiro</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <div class="container">
+            @Html.ActionLink("🛒 E-commerce GabrielMonteiro", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">@Html.ActionLink("Início", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Sobre", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Contato", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+
+                    @if (Session["UsuarioLogado"] != null)
+                    {
+                        if (Session["UsuarioLogado"].ToString() == "Cliente")
+                        {
+                            <li class="nav-item">@Html.ActionLink("🛍️ Loja", "Index", "Loja", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li class="nav-item">@Html.ActionLink("🛒 Carrinho", "Index", "Carrinho", new { area = "" }, new { @class = "nav-link" })</li>
+                        }
+                        else if (Session["UsuarioLogado"].ToString() == "Admin")
+                        {
+                            <li class="nav-item">@Html.ActionLink("⚙️ Admin", "Index", "Admin", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li class="nav-item">@Html.ActionLink("📦 Produtos", "Produtos", "Admin", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li class="nav-item">@Html.ActionLink("📋 Pedidos", "Pedidos", "Admin", new { area = "" }, new { @class = "nav-link" })</li>
+                            <!-- ✅ NOVO LINK: GERENCIAR CLIENTES -->
+                            <li class="nav-item">@Html.ActionLink("👥 Clientes", "Clientes", "Admin", new { area = "" }, new { @class = "nav-link" })</li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="nav-item">@Html.ActionLink("🛍️ Loja", "Index", "Loja", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+                </ul>
+
+                <ul class="navbar-nav ml-auto">
+                    @if (Session["UsuarioLogado"] != null)
+                    {
+                        <li class="nav-item">
+                            <span class="navbar-text text-light">
+                                👋 Olá, <strong>@Session["UsuarioLogado"]</strong>
+                                @if (Session["UsuarioEmail"] != null)
+                                {
+                                    <br /><small>@Session["UsuarioEmail"]</small>
+                                }
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            @Html.ActionLink("🚪 Sair", "Logout", "Home", new { area = "" }, new { @class = "nav-link" })
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            @Html.ActionLink("🔐 Login", "Login", "Home", new { area = "" }, new { @class = "nav-link" })
+                        </li>
+                        <li class="nav-item">
+                            @Html.ActionLink("📝 Cadastrar", "Registrar", "Home", new { area = "" }, new { @class = "nav-link" })
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container body-content mt-4">
+        <!-- Mensagens de Alerta -->
+        @if (TempData["Sucesso"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Sucesso"]
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        }
+
+        @if (TempData["Erro"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Erro"]
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        }
+
+        @RenderBody()
+
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - E-commerce GabrielMonteiro - Desenvolvido por Gabriel Monteiro</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

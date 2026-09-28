@@ -1,0 +1,205 @@
+﻿@model ProjetoEcommerceGabrielMonteiro.Models.Produto
+@{
+    ViewBag.Title = "Detalhes do Produto";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">@Html.ActionLink("Início", "Index", "Home")</li>
+                    <li class="breadcrumb-item">@Html.ActionLink("Loja", "Index", "Loja")</li>
+                    <li class="breadcrumb-item active">@Model.Nome</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Imagem do Produto -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(Model.Imagem))
+                    {
+                        <img src="@Model.Imagem" class="img-fluid" alt="@Model.Nome" style="max-height: 400px; object-fit: contain;">
+                    }
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                            <span class="text-muted display-4">📷</span>
+                        </div>
+                        <p class="text-muted mt-2">Imagem não disponível</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações do Produto -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">@Model.Nome</h1>
+
+                    @if (!string.IsNullOrEmpty(Model.Marca))
+                    {
+                        <p class="text-muted">Marca: <strong>@Model.Marca</strong></p>
+                    }
+
+                    <h2 class="text-success display-5">R$ @Model.Preco.ToString("N2")</h2>
+
+                    <div class="mb-3">
+                        @if (Model.QuantidadeEstoque > 0)
+                        {
+                            <span class="badge badge-success">✅ Em estoque</span>
+                            <small class="text-muted">(@Model.QuantidadeEstoque unidades disponíveis)</small>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger">❌ Fora de estoque</span>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.DescricaoCurta))
+                    {
+                        <div class="mb-3">
+                            <h5>Descrição Rápida</h5>
+                            <p class="lead">@Model.DescricaoCurta</p>
+                        </div>
+                    }
+
+                    <!-- Formulário de Compra -->
+                    @if (Model.QuantidadeEstoque > 0)
+                    {
+                        using (Html.BeginForm("Adicionar", "Carrinho", FormMethod.Get))
+                        {
+                            @Html.Hidden("id", Model.Id)
+
+                            <div class="form-group">
+                                <label for="quantidade"><strong>Quantidade:</strong></label>
+                                <div class="input-group" style="width: 150px;">
+                                    <div class="input-group-prepend">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="decrementQuantity()">-</button>
+                                    </div>
+                                    <input type="number" id="quantidade" name="quantidade" value="1"
+                                           min="1" max="@Model.QuantidadeEstoque" class="form-control text-center">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="incrementQuantity()">+</button>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Máximo: @Model.QuantidadeEstoque unidades</small>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                    🛒 Adicionar ao Carrinho
+                                </button>
+
+                                @Html.ActionLink("← Voltar para Loja", "Index", "Loja", null,
+                                    new { @class = "btn btn-outline-secondary btn-block mt-2" })
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <h5>⚠️ Produto Indisponível</h5>
+                            <p>Este produto está temporariamente fora de estoque.</p>
+                            @Html.ActionLink("← Voltar para Loja", "Index", "Loja", null,
+                                new { @class = "btn btn-outline-secondary" })
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Descrição Detalhada -->
+    @if (!string.IsNullOrEmpty(Model.DescricaoLonga))
+    {
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>📖 Descrição Detalhada</h4>
+                    </div>
+                    <div class="card-body">
+                        <p style="white-space: pre-line;">@Model.DescricaoLonga</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Informações Adicionais -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-4">🚚</div>
+                    <h5>Entrega Rápida</h5>
+                    <p class="text-muted">Entrega em 5-7 dias úteis</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-4">🔒</div>
+                    <h5>Compra Segura</h5>
+                    <p class="text-muted">Seus dados protegidos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="display-4">💬</div>
+                    <h5>Suporte</h5>
+                    <p class="text-muted">Atendimento personalizado</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function incrementQuantity() {
+            var input = document.getElementById('quantidade');
+            var max = parseInt(input.getAttribute('max'));
+            var current = parseInt(input.value);
+
+            if (current < max) {
+                input.value = current + 1;
+            }
+        }
+
+        function decrementQuantity() {
+            var input = document.getElementById('quantidade');
+            var min = parseInt(input.getAttribute('min'));
+            var current = parseInt(input.value);
+
+            if (current > min) {
+                input.value = current - 1;
+            }
+        }
+
+        // Validação no change do input
+        document.getElementById('quantidade').addEventListener('change', function() {
+            var max = parseInt(this.getAttribute('max'));
+            var min = parseInt(this.getAttribute('min'));
+            var value = parseInt(this.value);
+
+            if (value > max) {
+                this.value = max;
+                alert('Quantidade máxima: ' + max);
+            }
+
+            if (value < min) {
+                this.value = min;
+            }
+        });
+    </script>
+}

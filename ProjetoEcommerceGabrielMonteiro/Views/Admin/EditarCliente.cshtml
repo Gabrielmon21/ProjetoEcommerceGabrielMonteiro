@@ -1,0 +1,153 @@
+﻿@model ProjetoEcommerceGabrielMonteiro.Models.Cliente
+@{
+    ViewBag.Title = "Editar Cliente";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">✏️ Editar Cliente</h4>
+                </div>
+                <div class="card-body">
+
+                    <!-- ✅ MENSAGENS DE ERRO/SUCESSO -->
+                    @if (TempData["Erro"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Erro"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["Sucesso"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Sucesso"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <!-- ✅ INFORMAÇÕES DO CLIENTE -->
+                    <div class="alert alert-info">
+                        <h5>👤 Editando Cliente #@Model.Id</h5>
+                        @if (Model.DataCadastro != null)
+                        {
+                            <p class="mb-0"><strong>Cadastrado em:</strong> @Model.DataCadastro.ToString("dd/MM/yyyy")</p>
+                        }
+                    </div>
+
+                    <!-- ✅ FORMULÁRIO DE EDIÇÃO -->
+                    @using (Html.BeginForm("EditarCliente", "Admin", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        @Html.HiddenFor(m => m.DataCadastro)
+
+                        <div class="form-group">
+                            <label for="Nome" class="font-weight-bold">📛 Nome Completo:</label>
+                            @Html.TextBoxFor(m => m.Nome, new
+                            {
+                                @class = "form-control",
+                                required = "required",
+                                placeholder = "Digite o nome completo"
+                            })
+                            <div class="invalid-feedback">
+                                Por favor, digite o nome do cliente.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Email" class="font-weight-bold">📧 E-mail:</label>
+                            @Html.TextBoxFor(m => m.Email, new
+                            {
+                                @class = "form-control",
+                                type = "email",
+                                required = "required",
+                                placeholder = "exemplo@email.com"
+                            })
+                            <div class="invalid-feedback">
+                                Por favor, digite um e-mail válido.
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="NumContato" class="font-weight-bold">📞 Telefone:</label>
+                            @Html.TextBoxFor(m => m.NumContato, new
+                            {
+                                @class = "form-control",
+                                placeholder = "(11) 99999-9999"
+                            })
+                            <small class="form-text text-muted">Opcional</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Endereco" class="font-weight-bold">📍 Endereço:</label>
+                            @Html.TextAreaFor(m => m.Endereco, new
+                            {
+                                @class = "form-control",
+                                rows = "3",
+                                placeholder = "Digite o endereço completo"
+                            })
+                            <small class="form-text text-muted">Opcional</small>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                💾 Salvar Alterações
+                            </button>
+
+                            <a href="@Url.Action("DetalhesCliente", "Admin", new { id = Model.Id })"
+                               class="btn btn-secondary btn-lg ml-2">
+                                ↩️ Voltar
+                            </a>
+
+                            <a href="@Url.Action("Clientes", "Admin")"
+                               class="btn btn-outline-primary btn-lg ml-2">
+                                📋 Lista de Clientes
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ SCRIPTS PARA VALIDAÇÃO -->
+@section Scripts {
+    <script>
+        // Validação do formulário
+        (function () {
+            'use strict';
+            window.addEventListener('load', function () {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+
+        // Máscara para telefone
+        $(document).ready(function () {
+            $('#NumContato').inputmask('(99) 99999-9999');
+
+            // Debug do formulário
+            $('form').on('submit', function () {
+                console.log('Formulário enviado!');
+                console.log('Dados:', $(this).serialize());
+            });
+        });
+    </script>
+}

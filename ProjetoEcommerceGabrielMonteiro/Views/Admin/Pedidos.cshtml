@@ -1,0 +1,776 @@
+﻿@model List<ProjetoEcommerceGabrielMonteiro.Models.Pedido>
+@{
+    ViewBag.Title = "Gerenciar Pedidos";
+
+    Func<string, string> chave = s =>
+    {
+        if (string.Equals(s, "Confirmado", StringComparison.OrdinalIgnoreCase)) { return "confirmado"; }
+        if (string.Equals(s, "Pendente", StringComparison.OrdinalIgnoreCase)) { return "pendente"; }
+        if (string.Equals(s, "Entregue", StringComparison.OrdinalIgnoreCase)) { return "entregue"; }
+        if (string.Equals(s, "Cancelado", StringComparison.OrdinalIgnoreCase)) { return "cancelado"; }
+        return "outro";
+    };
+
+    int total = Model != null ? Model.Count : 0;
+    int nConfirmado = total > 0 ? Model.Count(p => chave(p.Status) == "confirmado") : 0;
+    int nPendente = total > 0 ? Model.Count(p => chave(p.Status) == "pendente") : 0;
+    int nEntregue = total > 0 ? Model.Count(p => chave(p.Status) == "entregue") : 0;
+    int nCancelado = total > 0 ? Model.Count(p => chave(p.Status) == "cancelado") : 0;
+    int nOutro = total - nConfirmado - nPendente - nEntregue - nCancelado;
+    decimal valorTotal = total > 0 ? Model.Sum(p => p.Total) : 0m;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+    .cx {
+        --cx-base: #070b14;
+        --cx-surface: #0e1626;
+        --cx-surface-2: #131e33;
+        --cx-line: #1d2a44;
+        --cx-text: #e6edf7;
+        --cx-muted: #8a9bb8;
+        --cx-cyan: #22d3ee;
+        --cx-violet: #8b5cf6;
+        --cx-danger: #f43f5e;
+        --cx-warn: #f59e0b;
+        --cx-ok: #34d399;
+        position: relative;
+        margin: 1.5rem 0;
+        padding: 2rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 18px;
+        color: var(--cx-text);
+        font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        background: radial-gradient(900px 380px at 88% -10%, rgba(139, 92, 246, .18), transparent 60%), radial-gradient(700px 320px at -5% 0%, rgba(34, 211, 238, .14), transparent 60%), linear-gradient(rgba(34, 211, 238, .035) 1px, transparent 1px) 0 0 / 34px 34px, linear-gradient(90deg, rgba(34, 211, 238, .035) 1px, transparent 1px) 0 0 / 34px 34px, var(--cx-base);
+        overflow: hidden;
+    }
+
+        .cx *, .cx *::before, .cx *::after {
+            box-sizing: border-box;
+        }
+
+    /* Cabeçalho */
+    .cx-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .cx-title {
+        margin: 0;
+        font-family: 'Space Grotesk', 'Manrope', sans-serif;
+        font-size: clamp(1.9rem, 3.4vw, 2.7rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+        line-height: 1.05;
+        background: linear-gradient(100deg, #fff 30%, var(--cx-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .cx-sub {
+        margin: .45rem 0 0;
+        color: var(--cx-muted);
+        font-size: .95rem;
+    }
+
+    .cx-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+        align-items: center;
+    }
+
+    .cx-search {
+        position: relative;
+    }
+
+        .cx-search svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--cx-muted);
+            pointer-events: none;
+        }
+
+        .cx-search input {
+            width: 260px;
+            max-width: 100%;
+            padding: .6rem .9rem .6rem 2.2rem;
+            border-radius: 10px;
+            border: 1px solid var(--cx-line);
+            background: var(--cx-surface);
+            color: var(--cx-text);
+            font: inherit;
+            font-size: .92rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .cx-search input::placeholder {
+                color: var(--cx-muted);
+            }
+
+            .cx-search input:focus {
+                outline: none;
+                border-color: var(--cx-cyan);
+                box-shadow: 0 0 0 3px rgba(34, 211, 238, .18);
+            }
+
+    .cx-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .6rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-text);
+        font: inherit;
+        font-size: .92rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+    }
+
+        .cx-btn:hover {
+            border-color: var(--cx-cyan);
+            background: #16233c;
+        }
+
+        .cx-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    .cx a:focus-visible, .cx button:focus-visible, .cx input:focus-visible {
+        outline: 2px solid var(--cx-cyan);
+        outline-offset: 2px;
+    }
+
+    /* Alertas */
+    .cx-alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: .85rem 1.1rem;
+        border-radius: 12px;
+        border: 1px solid;
+        font-size: .93rem;
+    }
+
+    .cx-alert--ok {
+        color: var(--cx-ok);
+        background: rgba(52, 211, 153, .08);
+        border-color: rgba(52, 211, 153, .35);
+    }
+
+    .cx-alert--erro {
+        color: #fb7185;
+        background: rgba(244, 63, 94, .08);
+        border-color: rgba(244, 63, 94, .35);
+    }
+
+    .cx-alert button {
+        background: none;
+        border: 0;
+        color: inherit;
+        font-size: 1.3rem;
+        line-height: 1;
+        cursor: pointer;
+        opacity: .75;
+    }
+
+        .cx-alert button:hover {
+            opacity: 1;
+        }
+
+    /* Indicadores */
+    .cx-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .cx-stat {
+        padding: 1.15rem 1.3rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(19, 30, 51, .9), rgba(14, 22, 38, .9));
+        min-width: 0;
+    }
+
+    .cx-stat--main {
+        border-color: rgba(34, 211, 238, .4);
+        box-shadow: 0 0 32px -12px rgba(34, 211, 238, .5);
+    }
+
+    .cx-stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -.02em;
+        overflow-wrap: anywhere;
+    }
+
+    .cx-stat-label {
+        margin-top: .4rem;
+        color: var(--cx-muted);
+        font-size: .88rem;
+    }
+
+    /* Distribuição por status */
+    .cx-dist {
+        display: flex;
+        gap: 3px;
+        height: 8px;
+        margin-bottom: 1.75rem;
+        border-radius: 99px;
+        overflow: hidden;
+        background: var(--cx-line);
+    }
+
+        .cx-dist > span {
+            display: block;
+            height: 100%;
+            transform-origin: left center;
+            animation: cx-grow .9s cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+    @@keyframes cx-grow {
+        from {
+            transform: scaleX(0);
+        }
+
+        to {
+            transform: scaleX(1);
+        }
+    }
+
+    .s-confirmado {
+        --c: var(--cx-ok);
+    }
+
+    .s-pendente {
+        --c: var(--cx-warn);
+    }
+
+    .s-entregue {
+        --c: var(--cx-cyan);
+    }
+
+    .s-cancelado {
+        --c: var(--cx-danger);
+    }
+
+    .s-outro {
+        --c: var(--cx-muted);
+    }
+
+    .cx-dist > span {
+        background: var(--c);
+    }
+
+    /* Filtros por status */
+    .cx-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        padding: 1rem 1.3rem;
+        border-bottom: 1px solid var(--cx-line);
+    }
+
+    .cx-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .4rem .85rem;
+        border-radius: 99px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-muted);
+        font: inherit;
+        font-size: .85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color .15s, border-color .15s, background .15s;
+    }
+
+        .cx-chip i {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--c, var(--cx-text));
+            box-shadow: 0 0 8px var(--c, transparent);
+        }
+
+        .cx-chip b {
+            color: var(--cx-text);
+            font-weight: 700;
+        }
+
+        .cx-chip:hover {
+            color: var(--cx-text);
+            border-color: var(--c, var(--cx-cyan));
+        }
+
+        .cx-chip[aria-pressed="true"] {
+            color: var(--cx-text);
+            border-color: var(--c, var(--cx-cyan));
+            background: rgba(34, 211, 238, .08);
+        }
+
+    /* Tabela */
+    .cx-panel {
+        border: 1px solid var(--cx-line);
+        border-radius: 14px;
+        background: rgba(14, 22, 38, .92);
+        overflow: hidden;
+    }
+
+    .cx-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.3rem;
+        border-bottom: 1px solid var(--cx-line);
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 1.05rem;
+    }
+
+    .cx-count {
+        color: var(--cx-muted);
+        font-family: 'Manrope', sans-serif;
+        font-weight: 500;
+        font-size: .88rem;
+    }
+
+    .cx-scroll {
+        overflow-x: auto;
+    }
+
+    .cx-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .cx-table th {
+            padding: .8rem 1.3rem;
+            text-align: left;
+            color: var(--cx-muted);
+            font-size: .82rem;
+            font-weight: 600;
+            background: rgba(7, 11, 20, .55);
+            white-space: nowrap;
+        }
+
+        .cx-table td {
+            padding: .85rem 1.3rem;
+            border-top: 1px solid var(--cx-line);
+            font-size: .93rem;
+            vertical-align: middle;
+        }
+
+        .cx-table tbody tr {
+            transition: background .15s;
+        }
+
+            .cx-table tbody tr:hover {
+                background: rgba(34, 211, 238, .05);
+            }
+
+    .cx-num {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cx-muted {
+        color: var(--cx-muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cx-valor {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        color: var(--cx-ok);
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cx-status {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .22rem .7rem;
+        border-radius: 99px;
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+    }
+
+        .cx-status i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--c);
+            box-shadow: 0 0 8px var(--c);
+        }
+
+    .cx-actions {
+        display: flex;
+        gap: .4rem;
+        justify-content: flex-end;
+    }
+
+    .cx-icon {
+        width: 34px;
+        height: 34px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-muted);
+        transition: color .15s, border-color .15s, background .15s;
+    }
+
+        .cx-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    .cx-icon--ver:hover {
+        color: var(--cx-cyan);
+        border-color: var(--cx-cyan);
+        background: rgba(34, 211, 238, .08);
+    }
+
+    .cx-icon--editar:hover {
+        color: var(--cx-warn);
+        border-color: var(--cx-warn);
+        background: rgba(245, 158, 11, .08);
+    }
+
+    .cx-nores {
+        display: none;
+        padding: 2rem 1.3rem;
+        text-align: center;
+        color: var(--cx-muted);
+    }
+
+    /* Estado vazio */
+    .cx-empty {
+        padding: 3.5rem 1.5rem;
+        text-align: center;
+    }
+
+    .cx-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1.1rem;
+        display: grid;
+        place-items: center;
+        border-radius: 18px;
+        color: var(--cx-cyan);
+        background: rgba(34, 211, 238, .08);
+        border: 1px solid rgba(34, 211, 238, .3);
+    }
+
+        .cx-empty-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+
+    .cx-empty h4 {
+        margin: 0 0 .4rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.3rem;
+    }
+
+    .cx-empty p {
+        margin: 0 auto;
+        max-width: 42ch;
+        color: var(--cx-muted);
+    }
+
+    /* Responsivo */
+    @@media (max-width: 960px) {
+        .cx-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 860px) {
+        .cx {
+            padding: 1.25rem;
+        }
+
+        .cx-search input {
+            width: 100%;
+        }
+
+        .cx-search {
+            flex: 1 1 100%;
+        }
+    }
+
+    @@media (max-width: 720px) {
+        .cx-table thead {
+            display: none;
+        }
+
+        .cx-table, .cx-table tbody, .cx-table tr, .cx-table td {
+            display: block;
+            width: 100%;
+        }
+
+            .cx-table tr {
+                padding: .6rem 0;
+                border-top: 1px solid var(--cx-line);
+            }
+
+            .cx-table tbody tr:first-child {
+                border-top: 0;
+            }
+
+            .cx-table td {
+                border: 0;
+                padding: .35rem 1.1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+            }
+
+                .cx-table td[data-label]::before {
+                    content: attr(data-label);
+                    color: var(--cx-muted);
+                    font-size: .82rem;
+                }
+
+        .cx-actions {
+            justify-content: flex-start;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .cx-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .cx-dist > span {
+            animation: none;
+        }
+
+        .cx * {
+            transition: none !important;
+        }
+    }
+</style>
+
+<div class="cx">
+
+    <div class="cx-head">
+        <div>
+            <h2 class="cx-title">Pedidos</h2>
+            <p class="cx-sub">@total @(total == 1 ? "pedido registrado" : "pedidos registrados") na loja</p>
+        </div>
+
+        <div class="cx-tools">
+            @if (total > 0)
+            {
+                <label class="cx-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" /></svg>
+                    <input type="search" id="cxBusca" placeholder="Buscar por pedido, cliente ou pagamento" aria-label="Buscar pedidos" autocomplete="off" />
+                </label>
+            }
+            <button type="button" class="cx-btn" onclick="location.reload()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" /></svg>
+                Atualizar
+            </button>
+        </div>
+    </div>
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="cx-alert cx-alert--ok" role="status">
+            <span>@TempData["Sucesso"]</span>
+            <button type="button" aria-label="Fechar aviso" onclick="this.parentNode.remove()">&times;</button>
+        </div>
+    }
+
+    @if (TempData["Erro"] != null)
+    {
+        <div class="cx-alert cx-alert--erro" role="alert">
+            <span>@TempData["Erro"]</span>
+            <button type="button" aria-label="Fechar aviso" onclick="this.parentNode.remove()">&times;</button>
+        </div>
+    }
+
+    @if (total > 0)
+    {
+        <div class="cx-stats">
+            <div class="cx-stat cx-stat--main">
+                <div class="cx-stat-value">@total</div>
+                <div class="cx-stat-label">Total de pedidos</div>
+            </div>
+            <div class="cx-stat">
+                <div class="cx-stat-value">@nConfirmado</div>
+                <div class="cx-stat-label">Confirmados</div>
+            </div>
+            <div class="cx-stat">
+                <div class="cx-stat-value">@nPendente</div>
+                <div class="cx-stat-label">Pendentes</div>
+            </div>
+            <div class="cx-stat">
+                <div class="cx-stat-value">R$ @valorTotal.ToString("N2")</div>
+                <div class="cx-stat-label">Valor total</div>
+            </div>
+        </div>
+
+        <div class="cx-dist" role="img" aria-label="Distribuição dos pedidos por status">
+            @if (nConfirmado > 0)
+            {<span class="s-confirmado" style="flex:@nConfirmado"></span>}
+            @if (nPendente > 0)
+            {<span class="s-pendente" style="flex:@nPendente"></span>}
+            @if (nEntregue > 0)
+            {<span class="s-entregue" style="flex:@nEntregue"></span>}
+            @if (nCancelado > 0)
+            {<span class="s-cancelado" style="flex:@nCancelado"></span>}
+            @if (nOutro > 0)
+            {<span class="s-outro" style="flex:@nOutro"></span>}
+        </div>
+
+        <div class="cx-panel">
+            <div class="cx-panel-head">
+                <span>Todos os pedidos</span>
+                <span class="cx-count" id="cxContagem">@total @(total == 1 ? "registro" : "registros")</span>
+            </div>
+
+            <div class="cx-chips" id="cxChips">
+                <button type="button" class="cx-chip" data-filtro="" aria-pressed="true">Todos <b>@total</b></button>
+                <button type="button" class="cx-chip s-confirmado" data-filtro="confirmado" aria-pressed="false"><i></i>Confirmado <b>@nConfirmado</b></button>
+                <button type="button" class="cx-chip s-pendente" data-filtro="pendente" aria-pressed="false"><i></i>Pendente <b>@nPendente</b></button>
+                <button type="button" class="cx-chip s-entregue" data-filtro="entregue" aria-pressed="false"><i></i>Entregue <b>@nEntregue</b></button>
+                <button type="button" class="cx-chip s-cancelado" data-filtro="cancelado" aria-pressed="false"><i></i>Cancelado <b>@nCancelado</b></button>
+            </div>
+
+            <div class="cx-scroll">
+                <table class="cx-table" id="cxTabela">
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Pagamento</th>
+                            <th style="text-align:right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pedido in Model)
+                        {
+                            var k = chave(pedido.Status);
+
+                            <tr data-status="@k">
+                                <td class="cx-num" data-label="Pedido">#@pedido.Id</td>
+                                <td class="cx-muted" data-label="Cliente">Cliente #@pedido.ClienteId</td>
+                                <td class="cx-muted" data-label="Data">@pedido.DataPedido.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td data-label="Total"><span class="cx-valor">R$ @pedido.Total.ToString("N2")</span></td>
+                                <td data-label="Status">
+                                    <span class="cx-status s-@k"><i></i>@pedido.Status</span>
+                                </td>
+                                <td data-label="Pagamento">@pedido.MetodoPagamento</td>
+                                <td data-label="Ações">
+                                    <div class="cx-actions">
+                                        <a class="cx-icon cx-icon--ver" href="@Url.Action("DetalhesPedido", "Admin", new { id = pedido.Id })" title="Ver detalhes" aria-label="Ver detalhes do pedido @pedido.Id">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                        </a>
+                                        <a class="cx-icon cx-icon--editar" href="@Url.Action("EditarStatusPedido", "Admin", new { id = pedido.Id })" title="Editar status" aria-label="Editar status do pedido @pedido.Id">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cx-nores" id="cxSemResultado">Nenhum pedido encontrado para esse filtro.</div>
+        </div>
+    }
+    else
+    {
+        <div class="cx-panel">
+            <div class="cx-empty">
+                <div class="cx-empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11Z" /></svg>
+                </div>
+                <h4>Nenhum pedido encontrado</h4>
+                <p>Os pedidos aparecem aqui assim que os clientes finalizam uma compra. Para testar, faça um pedido como cliente.</p>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var busca = document.getElementById('cxBusca');
+            var tabela = document.getElementById('cxTabela');
+            if (!busca || !tabela) return;
+
+            var linhas = tabela.querySelectorAll('tbody tr');
+            var chips = document.querySelectorAll('#cxChips .cx-chip');
+            var contagem = document.getElementById('cxContagem');
+            var vazio = document.getElementById('cxSemResultado');
+            var filtro = '';
+
+            function aplicar() {
+                var termo = busca.value.trim().toLowerCase();
+                var visiveis = 0;
+
+                linhas.forEach(function (tr) {
+                    var okStatus = !filtro || tr.getAttribute('data-status') === filtro;
+                    var okTexto = !termo || tr.textContent.toLowerCase().indexOf(termo) !== -1;
+                    var mostrar = okStatus && okTexto;
+                    tr.style.display = mostrar ? '' : 'none';
+                    if (mostrar) visiveis++;
+                });
+
+                contagem.textContent = visiveis + (visiveis === 1 ? ' registro' : ' registros');
+                vazio.style.display = visiveis === 0 ? 'block' : 'none';
+            }
+
+            busca.addEventListener('input', aplicar);
+
+            chips.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    filtro = chip.getAttribute('data-filtro');
+                    chips.forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+                    aplicar();
+                });
+            });
+        })();
+    </script>
+}

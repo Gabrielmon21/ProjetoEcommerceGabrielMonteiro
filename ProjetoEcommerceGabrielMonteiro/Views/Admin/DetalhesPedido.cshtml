@@ -1,0 +1,237 @@
+﻿@model ProjetoEcommerceGabrielMonteiro.Models.Pedido
+@{
+    ViewBag.Title = "Detalhes do Pedido";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Detalhes do Pedido</h2>
+        @Html.ActionLink("← Voltar para Pedidos", "Pedidos", "Admin", null, new { @class = "btn btn-secondary" })
+    </div>
+
+    <!-- Informações do Pedido -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📦 Pedido #@Model.Id</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>📅 Data do Pedido:</h6>
+                            <p>@Model.DataPedido.ToString("dd/MM/yyyy HH:mm")</p>
+
+                            <h6>👤 Cliente ID:</h6>
+                            <p>@Model.ClienteId</p>
+
+                            <h6>📮 Endereço de Entrega:</h6>
+                            <p>@(string.IsNullOrEmpty(Model.EnderecoEntrega) ? "Não informado" : Model.EnderecoEntrega)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>💰 Total do Pedido:</h6>
+                            <p class="h4 text-success">R$ @Model.Total.ToString("N2")</p>
+
+                            <h6>💳 Método de Pagamento:</h6>
+                            <p>@(string.IsNullOrEmpty(Model.MetodoPagamento) ? "Não informado" : Model.MetodoPagamento)</p>
+
+                            <h6>📊 Status:</h6>
+                            <p>
+                                @if (Model.Status == "Confirmado")
+                                {
+                                    <span class="badge badge-success">✅ @Model.Status</span>
+                                }
+                                else if (Model.Status == "Pendente")
+                                {
+                                    <span class="badge badge-warning">⏳ @Model.Status</span>
+                                }
+                                else if (Model.Status == "Cancelado")
+                                {
+                                    <span class="badge badge-danger">❌ @Model.Status</span>
+                                }
+                                else if (Model.Status == "Entregue")
+                                {
+                                    <span class="badge badge-info">📦 @Model.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">@Model.Status</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">⚡ Ações Rápidas</h6>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("EditarStatusPedido", "Admin", FormMethod.Post))
+                    {
+                        @Html.Hidden("id", Model.Id)
+
+                        <div class="form-group">
+                            <label for="status"><strong>Alterar Status:</strong></label>
+                            <select name="status" class="form-control">
+                                <option value="Pendente" @(Model.Status == "Pendente" ? "selected" : "")>⏳ Pendente</option>
+                                <option value="Confirmado" @(Model.Status == "Confirmado" ? "selected" : "")>✅ Confirmado</option>
+                                <option value="Entregue" @(Model.Status == "Entregue" ? "selected" : "")>📦 Entregue</option>
+                                <option value="Cancelado" @(Model.Status == "Cancelado" ? "selected" : "")>❌ Cancelado</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning btn-block">🔄 Atualizar Status</button>
+                    }
+
+                    <hr>
+
+                    <div class="text-center">
+                        <small class="text-muted">
+                            📞 <strong>Contato do Cliente:</strong><br>
+                            Em desenvolvimento
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens do Pedido -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">🛍️ Itens do Pedido</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Itens != null && Model.Itens.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Quantidade</th>
+                                        <th>Preço Unitário</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Itens)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@item.NomeProduto</strong>
+                                                <br>
+                                                <small class="text-muted">ID: @item.ProdutoId</small>
+                                            </td>
+                                            <td>@item.Quantidade</td>
+                                            <td>R$ @item.PrecoUnitario.ToString("N2")</td>
+                                            <td class="text-success">
+                                                <strong>R$ @((item.Quantidade * item.PrecoUnitario).ToString("N2"))</strong>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="bg-light">
+                                    <tr>
+                                        <td colspan="3" class="text-right"><strong>Total do Pedido:</strong></td>
+                                        <td class="text-success h5">R$ @Model.Total.ToString("N2")</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <div class="text-muted display-4">📭</div>
+                            <h5>Nenhum item encontrado</h5>
+                            <p>Os itens deste pedido não puderam ser carregados.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações Adicionais -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">ℹ️ Informações do Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>📋 Histórico de Status:</h6>
+                            <ul class="list-unstyled">
+                                <li>📅 <strong>@Model.DataPedido.ToString("dd/MM/yyyy HH:mm")</strong> - Pedido criado</li>
+                                <li>✅ <strong>Status atual:</strong> @Model.Status</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🚚 Informações de Entrega:</h6>
+                            <ul class="list-unstyled">
+                                <li>⏱️ <strong>Prazo estimado:</strong> 5-7 dias úteis</li>
+                                <li>📍 <strong>Endereço:</strong> @(string.IsNullOrEmpty(Model.EnderecoEntrega) ? "Não informado" : Model.EnderecoEntrega)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between">
+                @Html.ActionLink("← Voltar para Pedidos", "Pedidos", "Admin", null, new { @class = "btn btn-secondary" })
+
+                <div>
+                    @Html.ActionLink("✏️ Editar Pedido", "EditarStatusPedido", "Admin",
+                        new { id = Model.Id }, new { @class = "btn btn-warning" })
+
+                    <button class="btn btn-info ml-2" onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Confirmação ao alterar status
+        $('form').submit(function() {
+            return confirm('Tem certeza que deseja alterar o status deste pedido?');
+        });
+
+        // Auto-focus no select de status
+        $(document).ready(function() {
+            $('select[name="status"]').focus();
+        });
+    </script>
+
+    <style>
+        @@media print {
+            .btn, .card-header.bg-info, .form-group {
+                display: none !important;
+            }
+
+            .card {
+                border: 1px solid #000 !important;
+            }
+
+            .bg-primary, .bg-success {
+                background-color: #f8f9fa !important;
+                color: #000 !important;
+            }
+        }
+    </style>
+}
