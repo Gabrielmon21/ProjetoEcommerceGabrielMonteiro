@@ -1,0 +1,331 @@
+﻿@{
+    ViewBag.Title = "Página Inicial - E-commerce GabrielMonteiro";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+    .cx {
+        --cx-base: #070b14;
+        --cx-surface: #0e1626;
+        --cx-surface-2: #131e33;
+        --cx-line: #1d2a44;
+        --cx-text: #e6edf7;
+        --cx-muted: #8a9bb8;
+        --cx-cyan: #22d3ee;
+        --cx-violet: #8b5cf6;
+        --cx-danger: #f43f5e;
+        --cx-warn: #f59e0b;
+        --cx-ok: #34d399;
+        position: relative;
+        margin: 1.5rem 0;
+        padding: 2rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 18px;
+        color: var(--cx-text);
+        font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        background: radial-gradient(900px 380px at 88% -10%, rgba(139, 92, 246, .18), transparent 60%), radial-gradient(700px 320px at -5% 0%, rgba(34, 211, 238, .14), transparent 60%), linear-gradient(rgba(34, 211, 238, .035) 1px, transparent 1px) 0 0 / 34px 34px, linear-gradient(90deg, rgba(34, 211, 238, .035) 1px, transparent 1px) 0 0 / 34px 34px, var(--cx-base);
+        overflow: hidden;
+    }
+
+        .cx *, .cx *::before, .cx *::after {
+            box-sizing: border-box;
+        }
+
+    /* Hero / Jumbotron */
+    .cx-hero {
+        position: relative;
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 16px;
+        background: radial-gradient(600px 260px at 90% 0%, rgba(139, 92, 246, .22), transparent 60%), radial-gradient(500px 240px at 0% 100%, rgba(34, 211, 238, .18), transparent 60%), linear-gradient(180deg, rgba(19, 30, 51, .95), rgba(14, 22, 38, .95));
+        overflow: hidden;
+    }
+
+        .cx-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(34, 211, 238, .04) 1px, transparent 1px) 0 0 / 28px 28px, linear-gradient(90deg, rgba(34, 211, 238, .04) 1px, transparent 1px) 0 0 / 28px 28px;
+            pointer-events: none;
+            opacity: .6;
+        }
+
+    .cx-hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 720px;
+    }
+
+    .cx-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .35rem .85rem;
+        margin-bottom: 1.1rem;
+        border-radius: 99px;
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--cx-cyan);
+        background: rgba(34, 211, 238, .1);
+        border: 1px solid rgba(34, 211, 238, .35);
+    }
+
+        .cx-hero-badge i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cx-cyan);
+            box-shadow: 0 0 8px var(--cx-cyan);
+        }
+
+    .cx-hero-title {
+        margin: 0 0 .6rem;
+        font-family: 'Space Grotesk', 'Manrope', sans-serif;
+        font-size: clamp(2.1rem, 4.4vw, 3.2rem);
+        font-weight: 700;
+        letter-spacing: -.02em;
+        line-height: 1.05;
+        background: linear-gradient(100deg, #fff 30%, var(--cx-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .cx-hero-lead {
+        margin: 0 0 1.5rem;
+        color: var(--cx-muted);
+        font-size: clamp(.95rem, 1.4vw, 1.08rem);
+        line-height: 1.6;
+    }
+
+    /* Botões */
+    .cx-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        padding: .7rem 1.2rem;
+        border-radius: 10px;
+        border: 1px solid var(--cx-line);
+        background: var(--cx-surface-2);
+        color: var(--cx-text);
+        font: inherit;
+        font-size: .95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color .2s, background .2s, transform .1s, box-shadow .2s;
+        text-decoration: none;
+    }
+
+        .cx-btn:hover {
+            border-color: var(--cx-cyan);
+            background: #16233c;
+        }
+
+        .cx-btn:active {
+            transform: translateY(1px);
+        }
+
+        .cx-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+    .cx-btn--primary {
+        border-color: rgba(34, 211, 238, .5);
+        background: linear-gradient(100deg, var(--cx-cyan), var(--cx-violet));
+        color: #06121c;
+        font-weight: 700;
+        box-shadow: 0 12px 30px -14px rgba(34, 211, 238, .7);
+    }
+
+        .cx-btn--primary:hover {
+            background: linear-gradient(100deg, #38e0f5, #9d74f8);
+            border-color: rgba(34, 211, 238, .8);
+            color: #06121c;
+        }
+
+    .cx-btn--lg {
+        padding: .85rem 1.4rem;
+        font-size: 1rem;
+    }
+
+    .cx a:focus-visible {
+        outline: 2px solid var(--cx-cyan);
+        outline-offset: 2px;
+    }
+
+    /* Grid de destaques */
+    .cx-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+
+    .cx-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 1.4rem 1.4rem 1.5rem;
+        border: 1px solid var(--cx-line);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(19, 30, 51, .9), rgba(14, 22, 38, .9));
+        overflow: hidden;
+        transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+
+        .cx-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--c, var(--cx-cyan)), transparent);
+            opacity: .9;
+        }
+
+        .cx-card:hover {
+            border-color: color-mix(in srgb, var(--c, var(--cx-cyan)) 50%, var(--cx-line));
+            transform: translateY(-3px);
+            box-shadow: 0 22px 44px -24px color-mix(in srgb, var(--c, var(--cx-cyan)) 60%, transparent);
+        }
+
+    .m-cyan {
+        --c: var(--cx-cyan);
+    }
+
+    .m-violet {
+        --c: var(--cx-violet);
+    }
+
+    .m-ok {
+        --c: var(--cx-ok);
+    }
+
+    .cx-card-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        color: var(--c);
+        background: color-mix(in srgb, var(--c) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+    }
+
+        .cx-card-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+    .cx-card-title {
+        margin: 0 0 .4rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--cx-text);
+    }
+
+    .cx-card-desc {
+        margin: 0;
+        color: var(--cx-muted);
+        font-size: .9rem;
+        line-height: 1.55;
+        flex: 1;
+    }
+
+    /* Responsivo */
+    @@media (max-width: 960px) {
+        .cx-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 860px) {
+        .cx {
+            padding: 1.25rem;
+        }
+
+        .cx-hero {
+            padding: 2rem 1.5rem;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .cx-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .cx * {
+            transition: none !important;
+        }
+    }
+</style>
+
+<div class="cx">
+
+    <section class="cx-hero">
+        <div class="cx-hero-content">
+            <span class="cx-hero-badge"><i></i> ASP.NET MVC · SQL Server</span>
+
+            <h1 class="cx-hero-title">🛒 E-commerce GabrielMonteiro</h1>
+
+            <p class="cx-hero-lead">
+                Sistema de e-commerce desenvolvido em ASP.NET MVC com SQL Server.
+            </p>
+
+            <a href="@Url.Action("About", "Home")" class="cx-btn cx-btn--primary cx-btn--lg">
+                Saiba mais
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <div class="cx-grid">
+
+        <article class="cx-card m-cyan">
+            <div class="cx-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                    <path d="M3 6h18" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+            </div>
+            <h2 class="cx-card-title">📦 Catálogo de Produtos</h2>
+            <p class="cx-card-desc">Explore nossa variedade de produtos com os melhores preços.</p>
+        </article>
+
+        <article class="cx-card m-ok">
+            <div class="cx-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+            </div>
+            <h2 class="cx-card-title">👤 Área do Cliente</h2>
+            <p class="cx-card-desc">Faça login para acessar sua conta e realizar compras.</p>
+        </article>
+
+        <article class="cx-card m-violet">
+            <div class="cx-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+                </svg>
+            </div>
+            <h2 class="cx-card-title">⚙️ Administração</h2>
+            <p class="cx-card-desc">Área administrativa para gerenciar produtos e pedidos.</p>
+        </article>
+
+    </div>
+
+</div>
